@@ -58,3 +58,7 @@
   color: #001127;
   min-width: 200px;
 }
+
+.gridItemIconButton {
+  text-align: center;
+}

@@ -8,6 +8,9 @@ import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SearchIcon from "@material-ui/icons/Search";
 import axios from "axios";
 import moment from "moment";
 import "./App.css";
@@ -77,7 +80,7 @@ function App() {
           country: "",
           showRequired: false,
           result,
-          history: [...value.history, result],
+          history: [result, ...value.history],
         });
       } else {
         setValue({
@@ -101,6 +104,40 @@ function App() {
       city: "",
       country: "",
     });
+  };
+
+  const onClickSearchHistory = () => {};
+
+  const onClickDeleteHistory = () => {};
+
+  const renderHistory = (history, key) => {
+    return (
+      <div key={key}>
+        <Grid
+          container
+          className="gridContainer"
+          justify="center"
+          alignItems="center"
+        >
+          <Grid item xs={8}>
+            <div>{`${key + 1}. ${history.place}`}</div>
+          </Grid>
+          <Grid item xs={2}>
+            <div>{history.createdTime}</div>
+          </Grid>
+          <Grid item xs={1} className="gridItemIconButton">
+            <IconButton color="primary" onClick={onClickSearchHistory}>
+              <SearchIcon />
+            </IconButton>
+          </Grid>
+          <Grid item xs={1} className="gridItemIconButton">
+            <IconButton color="primary" onClick={onClickDeleteHistory}>
+              <DeleteIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+      </div>
+    );
   };
 
   return (
@@ -226,9 +263,7 @@ function App() {
         <div className="historyContainer">
           <div className="subheaderTitle">{`Search History`}</div>
           <Divider variant="middle" />
-          {value.history.map((hist) => {
-            return <div>{hist.place}</div>;
-          })}
+          {value.history.map((history, key) => renderHistory(history, key))}
         </div>
       </div>
     </ThemeProvider>
