@@ -9,6 +9,52 @@
   margin: 10px;
 }
 
-.textField {
+.gridContainer {
+  padding: 15px;
+}
+
+.gridItem {
+  padding-bottom: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.historyContainer {
+  padding: 15px;
+}
+
+.subheaderTitle {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
   margin: 10px;
+}
+
+.placeText {
+  font-size: 14px;
+  color: gray;
+}
+
+.weatherText {
+  font-size: 36px;
+  font-weight: bold;
+  color: #001127;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.weatherContainer {
+  margin-bottom: 3px;
+}
+
+.weatherLabel {
+  font-size: 14px;
+  color: gray;
+  width: 30px;
+}
+
+.weatherValue {
+  font-size: 15px;
+  color: #001127;
+  min-width: 200px;
 }
