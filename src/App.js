@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  ThemeProvider,
-  createMuiTheme,
-  makeStyles,
-} from "@material-ui/core/styles";
+import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
@@ -26,15 +22,13 @@ const theme = createMuiTheme({
   },
 });
 
-const useStyles = makeStyles({});
-
 function App() {
-  const classes = useStyles();
   const [value, setValue] = useState({
     city: "",
     country: "",
     showRequired: false,
     result: null,
+    resultNotFound: false,
     history: [],
   });
 
@@ -80,6 +74,7 @@ function App() {
           country: "",
           showRequired: false,
           result,
+          resultNotFound: false,
           history: [result, ...value.history],
         });
       } else {
@@ -95,6 +90,7 @@ function App() {
         ...value,
         showRequired: false,
         result: null,
+        resultNotFound: true,
       });
     }
   };
@@ -158,6 +154,7 @@ function App() {
               variant="outlined"
               label="City"
               name="city"
+              error={value.showRequired}
               helperText={value.showRequired && "Please enter a city name"}
               value={value.city}
               onChange={(e) => onChangeText(e)}
@@ -257,6 +254,18 @@ function App() {
                   </Grid>
                 </Grid>
               </Grid>
+            </Grid>
+          </Grid>
+        )}
+        {value.resultNotFound && (
+          <Grid
+            container
+            className="gridContainer"
+            justify="center"
+            alignItems="center"
+          >
+            <Grid item>
+              <div className="resultNotFound">City or Country not found</div>
             </Grid>
           </Grid>
         )}

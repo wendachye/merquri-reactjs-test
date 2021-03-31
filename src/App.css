@@ -62,3 +62,9 @@
 .gridItemIconButton {
   text-align: center;
 }
+
+.resultNotFound {
+  font-size: 18px;
+  font-weight: 500;
+  color: red;
+}
