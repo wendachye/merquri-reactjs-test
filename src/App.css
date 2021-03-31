@@ -1,0 +1,14 @@
+.container {
+  padding: 15px;
+}
+
+.headerTitle {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px;
+}
+
+.textField {
+  margin: 10px;
+}
