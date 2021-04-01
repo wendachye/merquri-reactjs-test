@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
@@ -32,6 +32,21 @@ function App() {
     history: [],
   });
 
+  useEffect(() => {
+    const fetchSearchHistory = () => {
+      const history = JSON.parse(localStorage.getItem("SEARCH_HISTORY"));
+
+      if (history) {
+        setValue({
+          ...value,
+          history,
+        });
+      }
+    };
+
+    fetchSearchHistory();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const onChangeText = (e) => {
     switch (e.target.name) {
       case "city":
@@ -51,22 +66,47 @@ function App() {
     }
   };
 
+  const fetchWeather = async (place) => {
+    try {
+      const { data } = await axios.get(
+        `http://api.openweathermap.org/data/2.5/weather?q=${place}&appid=2b353b3106f450d207c0b5d8da5f4fb2`
+      );
+
+      let result = {
+        id: moment().format(),
+        place: `${data?.name}, ${data?.sys?.country}`,
+        main: data?.weather?.[0]?.main || "",
+        description: data?.weather?.[0]?.description || "",
+        humidity: data?.main?.humidity || "",
+        tempMin: data?.main?.temp_min || "",
+        tempMax: data?.main?.temp_max || "",
+        createdTime: moment().format("YYYY-MM-DD hh:mm a"),
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const onClickSearch = async () => {
     try {
       if (value.city || value.country) {
-        const { data } = await axios.get(
-          `http://api.openweathermap.org/data/2.5/weather?q=${value.city},${value.country}&appid=2b353b3106f450d207c0b5d8da5f4fb2`
-        );
+        let place = "";
 
-        let result = {
-          place: `${data?.name}, ${data?.sys?.country}`,
-          main: data?.weather?.[0]?.main || "",
-          description: data?.weather?.[0]?.description || "",
-          humidity: data?.main?.humidity || "",
-          tempMin: data?.main?.temp_min || "",
-          tempMax: data?.main?.temp_max || "",
-          createdTime: moment().format("YYYY-MM-DD hh:mm a"),
-        };
+        if (value.city && value.country) {
+          place = `${value.city},${value.country}`;
+        } else if (value.city) {
+          place = `${value.city}`;
+        } else {
+          place = `${value.country}`;
+        }
+
+        const result = await fetchWeather(place);
+
+        let history = [result, ...value.history];
+
+        localStorage.setItem("SEARCH_HISTORY", JSON.stringify(history));
 
         setValue({
           ...value,
@@ -75,7 +115,7 @@ function App() {
           showRequired: false,
           result,
           resultNotFound: false,
-          history: [result, ...value.history],
+          history,
         });
       } else {
         setValue({
@@ -84,8 +124,6 @@ function App() {
         });
       }
     } catch (error) {
-      console.log(error);
-
       setValue({
         ...value,
         showRequired: false,
@@ -102,9 +140,41 @@ function App() {
     });
   };
 
-  const onClickSearchHistory = () => {};
+  const onClickSearchHistory = async (searchHistory) => {
+    try {
+      const result = await fetchWeather(searchHistory?.place);
 
-  const onClickDeleteHistory = () => {};
+      let history = [result, ...value.history];
+
+      localStorage.setItem("SEARCH_HISTORY", JSON.stringify(history));
+
+      setValue({
+        ...value,
+        result,
+        resultNotFound: false,
+        history,
+      });
+    } catch (error) {
+      setValue({
+        ...value,
+        result: null,
+        resultNotFound: true,
+      });
+    }
+  };
+
+  const onClickDeleteHistory = (searchHistory) => {
+    let history = value.history.filter(
+      (history) => history.id !== searchHistory.id
+    );
+
+    localStorage.setItem("SEARCH_HISTORY", JSON.stringify(history));
+
+    setValue({
+      ...value,
+      history,
+    });
+  };
 
   const renderHistory = (history, key) => {
     return (
@@ -115,19 +185,25 @@ function App() {
           justify="center"
           alignItems="center"
         >
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <div>{`${key + 1}. ${history.place}`}</div>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={8} md={2}>
             <div>{history.createdTime}</div>
           </Grid>
-          <Grid item xs={1} className="gridItemIconButton">
-            <IconButton color="primary" onClick={onClickSearchHistory}>
+          <Grid item xs={2} md={1} className="gridItemIconButton">
+            <IconButton
+              color="primary"
+              onClick={() => onClickSearchHistory(history)}
+            >
               <SearchIcon />
             </IconButton>
           </Grid>
-          <Grid item xs={1} className="gridItemIconButton">
-            <IconButton color="primary" onClick={onClickDeleteHistory}>
+          <Grid item xs={2} md={1} className="gridItemIconButton">
+            <IconButton
+              color="primary"
+              onClick={() => onClickDeleteHistory(history)}
+            >
               <DeleteIcon />
             </IconButton>
           </Grid>
@@ -272,7 +348,7 @@ function App() {
         <div className="historyContainer">
           <div className="subheaderTitle">{`Search History`}</div>
           <Divider variant="middle" />
-          {value.history.map((history, key) => renderHistory(history, key))}
+          {value?.history?.map((history, key) => renderHistory(history, key))}
         </div>
       </div>
     </ThemeProvider>
